@@ -1,0 +1,9 @@
+[submodule "fprime-arduino"]
+	path = fprime-arduino
+	url = https://github.com/fprime-community/fprime-arduino.git
+[submodule "fprime"]
+	path = fprime
+	url = https://github.com/nasa/fprime.git
+[submodule "ArduinoGpsTracker/RFM69"]
+	path = ArduinoGpsTracker/RFM69
+	url = https://github.com/LowPowerLab/RFM69.git
