@@ -29,7 +29,7 @@ Svc::GroundInterfaceComponentImpl groundInterface(FW_OPTIONAL_NAME("Ground"));
 // Arduino specific components
 Arduino::LedBlinkerComponentImpl ledBlinker(FW_OPTIONAL_NAME("LedBlinker"));
 Arduino::HardwareRateDriver hardwareRateDriver(FW_OPTIONAL_NAME("HardDriver"), 100);
-Svc::ArduinoTimeImpl time(FW_OPTIONAL_NAME("Time"));
+Svc::ArduinoTimeImpl timeImpl(FW_OPTIONAL_NAME("Time"));
 
 // Baremetal setup for the task runner
 Os::TaskRunner taskRunner;
@@ -59,7 +59,7 @@ const char* getHealthName(Fw::ObjBase& comp) {
  * memory can be acquired here, but should not be created at a later point.
  */
 void constructApp() {
-    time.init(0);
+    timeImpl.init(0);
     // Initialize rate group driver
     rateGroupDriverComp.init();
 

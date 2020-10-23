@@ -24,8 +24,9 @@ void constructApp();
 #include <fprime-arduino/ArduinoDrv/SerialDriver/SerialDriver.hpp>
 #include <fprime-arduino/ArduinoTime/ArduinoTimeImpl.hpp>
 #include <Os/Baremetal/TaskRunner/TaskRunner.hpp>
-
-#include <ArduinoGpsTracker/RadioWrapper/RadioWrapper.hpp>
+#ifdef ARDUINO
+    #include <ArduinoGpsTracker/RadioWrapper/RadioWrapper.hpp>
+#endif
 #include <ArduinoGpsTracker/Gps/GpsComponentImpl.hpp>
 
 //Core components. Gotta run them all
@@ -39,9 +40,9 @@ extern Svc::GroundInterfaceComponentImpl groundInterface;
 extern Svc::AssertFatalAdapterComponentImpl fatalAdapter;
 extern Svc::FatalHandlerComponentImpl fatalHandler;
 extern Svc::HealthImpl health;
+extern Svc::ArduinoTimeImpl timeImpl;
 extern Arduino::LedBlinkerComponentImpl ledBlinker;
 extern Arduino::HardwareRateDriver hardwareRateDriver;
-extern Svc::ArduinoTimeImpl time;
 extern Arduino::SerialDriverComponentImpl gpsSerialDriver;
 extern Gps::GpsComponentImpl gps;
 // Scheduler definition

@@ -17,7 +17,6 @@ set(MOD_DEPS
   Fw/Logger
   Svc/GroundInterface
   fprime-arduino/ArduinoTime
-  fprime-arduino/ArduinoOs
   Os
   Os/Baremetal/TaskRunner
 )
@@ -25,5 +24,7 @@ set(MOD_DEPS
 register_fprime_executable("${PROJECT_NAME}_exe")
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Teensyduino")
     add_arduino_dependency("${PROJECT_NAME}_exe")
+    add_custom_target("${PROJECT_NAME}" DEPENDS "${PROJECT_NAME}_exe_hex")
+else()
+    add_custom_target("${PROJECT_NAME}" DEPENDS "${PROJECT_NAME}_exe")
 endif()
-add_custom_target("${PROJECT_NAME}" DEPENDS "${PROJECT_NAME}_exe_hex")
