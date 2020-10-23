@@ -31,7 +31,7 @@
 
    <!-- Declare component instances - must match names in Components.hpp -->
    
-   <instance namespace="Svc" name="rateGroup10HzComp" type="ActiveRateGroup" base_id="200"  base_id_window="20" />
+   <instance namespace="Svc" name="rateGroup20HzComp" type="ActiveRateGroup" base_id="200"  base_id_window="20" />
    
    <instance namespace="Svc" name="rateGroup1HzComp" type="ActiveRateGroup" base_id="300"  base_id_window="20" />
 
@@ -134,8 +134,8 @@
        <source component = "health" port = "Log" type = "Log" num = "0"/>
         <target component = "eventLogger" port = "LogRecv" type = "Log" num = "0"/>
    </connection>
-   <connection name = "RateGroup10HzCompLog">
-       <source component = "rateGroup10HzComp" port = "Log" type = "Log" num = "0"/>
+   <connection name = "RateGroup20HzCompLog">
+       <source component = "rateGroup20HzComp" port = "Log" type = "Log" num = "0"/>
         <target component = "eventLogger" port = "LogRecv" type = "Log" num = "0"/>
    </connection>
    <connection name = "RateGroup1HzCompLog">
@@ -158,8 +158,8 @@
        <source component = "rateGroup1HzComp" port = "Tlm" type = "Tlm" num = "0"/>
        <target component = "chanTlm" port = "TlmRecv" type = "Tlm" num = "0"/>
    </connection>
-   <connection name = "rateGroup10HzCompTlm">
-       <source component = "rateGroup10HzComp" port = "Tlm" type = "Tlm" num = "0"/>
+   <connection name = "rateGroup20HzCompTlm">
+       <source component = "rateGroup20HzComp" port = "Tlm" type = "Tlm" num = "0"/>
        <target component = "chanTlm" port = "TlmRecv" type = "Tlm" num = "0"/>
    </connection>
    <connection name = "healthTlm">
@@ -176,8 +176,8 @@
        <source component = "eventLogger" port = "Time" type = "Time" num = "0"/>
        <target component = "timeImpl" port = "timeGetPort" type = "Time" num = "0"/>
    </connection>
-   <connection name = "rateGroup10HzCompTime">
-       <source component = "rateGroup10HzComp" port = "Time" type = "Time" num = "0"/>
+   <connection name = "rateGroup20HzCompTime">
+       <source component = "rateGroup20HzComp" port = "Time" type = "Time" num = "0"/>
        <target component = "timeImpl" port = "timeGetPort" type = "Time" num = "0"/>
    </connection>
    <connection name = "rateGroup1HzCompTime">
@@ -211,21 +211,21 @@
        <target component = "rateGroupDriverComp" port = "CycleIn" type = "Cycle" num = "0"/>
    </connection>
 
-   <!-- 10Hz Rate Group -->
-   <connection name = "rateGroupDriverComp10Hz">
+   <!-- 20Hz Rate Group -->
+   <connection name = "rateGroupDriverComp20Hz">
        <source component = "rateGroupDriverComp" port = "CycleOut" type = "Cycle" num = "0"/>
-       <target component = "rateGroup10HzComp" port = "CycleIn" type = "Cycle" num = "0"/>
+       <target component = "rateGroup20HzComp" port = "CycleIn" type = "Cycle" num = "0"/>
    </connection>
    <connection name = "groundInterfaceRg">
-       <source component = "rateGroup10HzComp" port = "RateGroupMemberOut" type = "Sched" num = "0"/>
+       <source component = "rateGroup20HzComp" port = "RateGroupMemberOut" type = "Sched" num = "0"/>
        <target component = "groundInterface" port = "schedIn" type = "Sched" num = "0"/>
    </connection>
    <connection name = "ledBlinkerRg">
-       <source component = "rateGroup10HzComp" port = "RateGroupMemberOut" type = "Sched" num = "1"/>
+       <source component = "rateGroup20HzComp" port = "RateGroupMemberOut" type = "Sched" num = "1"/>
        <target component = "ledBlinker" port = "schedIn" type = "Sched" num = "0"/>
    </connection>
    <connection name = "gpsSerialRg">
-       <source component = "rateGroup10HzComp" port = "RateGroupMemberOut" type = "Sched" num = "2"/>
+       <source component = "rateGroup20HzComp" port = "RateGroupMemberOut" type = "Sched" num = "2"/>
        <target component = "gpsSerialDriver" port = "schedIn" type = "Sched" num = "0"/>
    </connection>
 
@@ -253,12 +253,12 @@
    <!-- Each port number pair must be unique -->
    <!-- This order must match the table in Topology.cpp -->
 
-   <connection name = "rateGroup10HzCompPingIn">
+   <connection name = "rateGroup20HzCompPingIn">
        <source component = "health" port = "PingSend" type = "Ping" num = "0"/>
-       <target component = "rateGroup10HzComp" port = "PingIn" type = "Ping" num = "0"/>
+       <target component = "rateGroup20HzComp" port = "PingIn" type = "Ping" num = "0"/>
    </connection>
-   <connection name = "rateGroup10HzCompPingOut">
-       <source component = "rateGroup10HzComp" port = "PingOut" type = "Ping" num = "0"/>
+   <connection name = "rateGroup20HzCompPingOut">
+       <source component = "rateGroup20HzComp" port = "PingOut" type = "Ping" num = "0"/>
        <target component = "health" port = "PingReturn" type = "Ping" num = "0"/>
    </connection>
 

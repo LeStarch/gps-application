@@ -8,13 +8,13 @@
 
 // Setup the rate group driver used to drive all the ActiveRateGroups connected to it.
 // For each active rate group, there is a rate divisor that represents how often it is run.
-static NATIVE_INT_TYPE rate_divisors[] = {1, 10};
+static NATIVE_INT_TYPE rate_divisors[] = {2, 100};
 Svc::RateGroupDriverImpl rateGroupDriverComp(FW_OPTIONAL_NAME("RGDRV"), rate_divisors, FW_NUM_ARRAY_ELEMENTS(rate_divisors));
 
 // Context array variables are passed to rate group members if needed to distinguish one call from another
 // These context must match the rate group members connected in RPITopologyAi.xml
-static NATIVE_UINT_TYPE rg10HzContext[] = {Arduino::CONTEXT_RPI_DEMO_10Hz, 0, 0, 0};
-Svc::ActiveRateGroupImpl rateGroup10HzComp(FW_OPTIONAL_NAME("RG10Hz"),rg10HzContext,FW_NUM_ARRAY_ELEMENTS(rg10HzContext));
+static NATIVE_UINT_TYPE rg20HzContext[] = {Arduino::CONTEXT_RPI_DEMO_20Hz, 0, 0, 0};
+Svc::ActiveRateGroupImpl rateGroup20HzComp(FW_OPTIONAL_NAME("RG20Hz"),rg20HzContext,FW_NUM_ARRAY_ELEMENTS(rg20HzContext));
 static NATIVE_UINT_TYPE rg1HzContext[] = {0, 0, Arduino::CONTEXT_RPI_DEMO_1Hz, 0};
 Svc::ActiveRateGroupImpl rateGroup1HzComp(FW_OPTIONAL_NAME("RG1Hz"),rg1HzContext,FW_NUM_ARRAY_ELEMENTS(rg1HzContext));
 
@@ -28,7 +28,7 @@ Svc::GroundInterfaceComponentImpl groundInterface(FW_OPTIONAL_NAME("Ground"));
 
 // Arduino specific components
 Arduino::LedBlinkerComponentImpl ledBlinker(FW_OPTIONAL_NAME("LedBlinker"));
-Arduino::HardwareRateDriver hardwareRateDriver(FW_OPTIONAL_NAME("HardDriver"), 100);
+Arduino::HardwareRateDriver hardwareRateDriver(FW_OPTIONAL_NAME("HardDriver"), 10);
 Svc::ArduinoTimeImpl timeImpl(FW_OPTIONAL_NAME("Time"));
 
 // Baremetal setup for the task runner
@@ -64,7 +64,7 @@ void constructApp() {
     rateGroupDriverComp.init();
 
     // Initialize the rate groups
-    rateGroup10HzComp.init(10, 0);
+    rateGroup20HzComp.init(10, 0);
     rateGroup1HzComp.init(10, 1);
 
     // Initialize the core data handling components
@@ -95,17 +95,16 @@ void constructApp() {
     // ports connected to the health component. Once the ping entry array is created
     // pass it into the ping-entries array.
     Svc::HealthImpl::PingEntry pingEntries[] = {
-        {3, 5, getHealthName(rateGroup10HzComp)},
+        {3, 5, getHealthName(rateGroup20HzComp)},
         {3, 5, getHealthName(rateGroup1HzComp)},
         {3, 5, getHealthName(cmdDisp)},
         {3, 5, getHealthName(chanTlm)},
         {3, 5, getHealthName(eventLogger)}
     };
     health.setPingEntries(pingEntries,FW_NUM_ARRAY_ELEMENTS(pingEntries),0x123);
-    Fw::Logger::logMsg("[SETUP] Start\n", 0, 0, 0, 0, 0, 0);
     hardwareRateDriver.start();
     // Start all active components' tasks thus finishing the setup portion of this code
-    rateGroup10HzComp.start(0, 120, 10 * 1024);
+    rateGroup20HzComp.start(0, 120, 10 * 1024);
     rateGroup1HzComp.start(0, 119, 10 * 1024);
     cmdDisp.start(0, 101, 10 * 1024);
     eventLogger.start(0, 98, 10 * 1024);
@@ -120,7 +119,7 @@ void constructApp() {
  */
 void exitTasks(void) {
     rateGroup1HzComp.exit();
-    rateGroup10HzComp.exit();
+    rateGroup20HzComp.exit();
     cmdDisp.exit();
     eventLogger.exit();
     chanTlm.exit();

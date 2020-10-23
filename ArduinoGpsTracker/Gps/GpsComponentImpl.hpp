@@ -13,9 +13,10 @@
 #include "Utils/Types/CircularBuffer.hpp"
 #include "ArduinoGpsTracker/Gps/GpsComponentAc.hpp"
 
-#define GP_HEADER_LENGTH 5
+#define GP_HEADER_LENGTH 6
 #define GPGGA_LENGTH 82
-#define GP_BUFF_SIZE ((9600 * 11)/(10*10)) // 9600bps every second. Up to 11 calls to fill.
+// Serial buffer size + maximum length needed storred to avoid losing data
+#define GP_BUFF_SIZE (64 + GPGGA_LENGTH)
 
 namespace Gps {
 

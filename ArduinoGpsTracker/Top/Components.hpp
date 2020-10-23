@@ -31,7 +31,7 @@ void constructApp();
 
 //Core components. Gotta run them all
 extern Svc::RateGroupDriverImpl rateGroupDriverComp;
-extern Svc::ActiveRateGroupImpl rateGroup10HzComp;
+extern Svc::ActiveRateGroupImpl rateGroup20HzComp;
 extern Svc::ActiveRateGroupImpl rateGroup1HzComp;
 extern Svc::ActiveLoggerImpl eventLogger;
 extern Svc::TlmChanImpl chanTlm;

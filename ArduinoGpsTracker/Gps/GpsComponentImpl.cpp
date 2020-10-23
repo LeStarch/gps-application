@@ -31,9 +31,6 @@ namespace Gps {
       m_setup(false),
       m_locked(false)
   {
-      unsigned long int my_data = 5;
-      unsigned long int* my_pointer = &my_data;
-      *my_pointer = 3;
   }
 
   void GpsComponentImpl ::
@@ -100,18 +97,18 @@ namespace Gps {
       U8 tmp8;
       m_in_ring.rotate(1);
       if (!readFloat(packet.utcTime)) {
-    	  return false;
+          return false;
       }
       // Degrees minutes seconds and N/S character
       if (!readFloat(packet.dmNS)) {
-    	  return false;
+          return false;
       }
       m_in_ring.peek(tmp8);
       packet.northSouth = tmp8;
       m_in_ring.rotate(2);
       // Degrees minutes seconds and E/W character
       if (!readFloat(packet.dmEW)) {
-    	  return false;
+          return false;
       }
       m_in_ring.peek(tmp8);
       packet.eastWest = tmp8;
@@ -128,11 +125,11 @@ namespace Gps {
       m_in_ring.rotate(3);
       // HDOP value
       if (!readFloat(packet.hdop)) {
-    	  return false;
+          return false;
       }
       // Altitude1
       if (!readFloat(packet.altitude)) {
-    	  return false;
+          return false;
       }
       return true;
   }
@@ -144,28 +141,28 @@ namespace Gps {
       // Process through the entire ring buffer taking messages
       while (m_in_ring.get_remaining_size() >= GP_HEADER_LENGTH) {
           // Read routing header
-    	  U8 start = 0;
-    	  m_in_ring.peek(start, 1);
-    	  if (start == 'G') {
-    		  status = m_in_ring.peek(reinterpret_cast<U8*>(temp), GP_HEADER_LENGTH);
-    		  temp[GP_HEADER_LENGTH] = '\0';
-    		  // Look for known headers
-    		  if (status == Fw::FW_SERIALIZE_OK && strcmp(temp, "GPGGA") == 0) {
-				  // Break if not enough data
-				  if (m_in_ring.get_remaining_size() < GPGGA_LENGTH) {
-					  break;
-				  }
-				  m_in_ring.rotate(GP_HEADER_LENGTH);
-				  // Mangled message, send telemetry
-				  if (!detectGga(packet)) {
-					  m_mangled += 1;
-					  tlmWrite_Gps_Mangled(m_mangled);
-				  }
-				  // Process GPS message
-				  else {
-					  processGga(packet);
-				  }
-    		  }
+          U8 start = 0;
+          m_in_ring.peek(start, 0);
+          if (start == '$') {
+              status = m_in_ring.peek(reinterpret_cast<U8*>(temp), GP_HEADER_LENGTH);
+              temp[GP_HEADER_LENGTH] = '\0';
+              // Look for known headers
+              if (status == Fw::FW_SERIALIZE_OK && strcmp(temp, "$GPGGA") == 0) {
+                  // Break if not enough data
+                  if (m_in_ring.get_remaining_size() < GPGGA_LENGTH) {
+                      break;
+                  }
+                  m_in_ring.rotate(GP_HEADER_LENGTH);
+                  // Mangled message, send telemetry
+                  if (!detectGga(packet)) {
+                      m_mangled += 1;
+                      tlmWrite_Gps_Mangled(m_mangled);
+                  }
+                  // Process GPS message
+                  else {
+                      processGga(packet);
+                  }
+              }
           }
           m_in_ring.rotate(1);
       }
@@ -203,13 +200,11 @@ namespace Gps {
 
   void GpsComponentImpl :: processBuffer(Fw::Buffer& buffer)
   {
-	  //Serial1.write(reinterpret_cast<U8*>(buffer.getdata()), buffer.getsize());
-      //Serial.write(reinterpret_cast<U8*>(buffer.getdata()), buffer.getsize());
       NATIVE_UINT_TYPE buffer_offset = 0;
       NATIVE_UINT_TYPE buffer_remain = 0;
       NATIVE_UINT_TYPE ring_remain = 0;
       while (0 < (buffer_remain = (static_cast<NATIVE_UINT_TYPE>(buffer.getsize()) - buffer_offset)) &&
-    		 0 < (ring_remain = m_in_ring.get_remaining_size(true))) {
+             0 < (ring_remain = m_in_ring.get_remaining_size(true))) {
           NATIVE_UINT_TYPE ser_size = (buffer_remain >= ring_remain) ? ring_remain : buffer_remain;
           FW_ASSERT(m_in_ring.serialize(reinterpret_cast<U8*>(buffer.getdata()) + buffer_offset, ser_size) == Fw::FW_SERIALIZE_OK);
           buffer_offset = buffer_offset + ser_size;
