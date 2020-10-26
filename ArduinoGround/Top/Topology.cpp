@@ -3,8 +3,8 @@
 #include <Os/Log.hpp>
 #include <Os/File.hpp>
 #include <Fw/Types/MallocAllocator.hpp>
-#include <ArduinoGpsTracker/Top/ArduinoSchedContexts.hpp>
-#include "ArduinoGpsTracker/Top/Components.hpp"
+#include <ArduinoGround/Top/ArduinoSchedContexts.hpp>
+#include "ArduinoGround/Top/Components.hpp"
 
 // Setup the rate group driver used to drive all the ActiveRateGroups connected to it.
 // For each active rate group, there is a rate divisor that represents how often it is run.
@@ -13,9 +13,9 @@ Svc::RateGroupDriverImpl rateGroupDriverComp(FW_OPTIONAL_NAME("RGDRV"), rate_div
 
 // Context array variables are passed to rate group members if needed to distinguish one call from another
 // These context must match the rate group members connected in RPITopologyAi.xml
-static NATIVE_UINT_TYPE rg20HzContext[] = {Arduino::CONTEXT_RPI_DEMO_20Hz, 0, 0};
+static NATIVE_UINT_TYPE rg20HzContext[] = {Arduino::CONTEXT_RPI_DEMO_20Hz, 0, 0, 0};
 Svc::ActiveRateGroupImpl rateGroup20HzComp(FW_OPTIONAL_NAME("RG20Hz"),rg20HzContext,FW_NUM_ARRAY_ELEMENTS(rg20HzContext));
-static NATIVE_UINT_TYPE rg1HzContext[] = {0, Arduino::CONTEXT_RPI_DEMO_1Hz, 0};
+static NATIVE_UINT_TYPE rg1HzContext[] = {0, 0, Arduino::CONTEXT_RPI_DEMO_1Hz, 0};
 Svc::ActiveRateGroupImpl rateGroup1HzComp(FW_OPTIONAL_NAME("RG1Hz"),rg1HzContext,FW_NUM_ARRAY_ELEMENTS(rg1HzContext));
 
 // Standard system components
@@ -27,22 +27,16 @@ Svc::HealthImpl health(FW_OPTIONAL_NAME("Health"));
 Svc::GroundInterfaceComponentImpl groundInterface(FW_OPTIONAL_NAME("Ground"));
 
 // Arduino specific components
-//Arduino::LedBlinkerComponentImpl ledBlinker(FW_OPTIONAL_NAME("LedBlinker"));
 Arduino::HardwareRateDriver hardwareRateDriver(FW_OPTIONAL_NAME("HardDriver"), 10);
 Svc::ArduinoTimeImpl timeImpl(FW_OPTIONAL_NAME("Time"));
+Arduino::RadioWrapperComponentImpl radio(FW_OPTIONAL_NAME("RADIO"));
+Arduino::RadioForwarderComponentImpl relay(FW_OPTIONAL_NAME("RELAY"));
 
 // Baremetal setup for the task runner
 Os::TaskRunner taskRunner;
 
 
-#ifdef COMM_SERIAL
-  Arduino::SerialDriverComponentImpl comm(FW_OPTIONAL_NAME("COMM"), 0);
-#else
-  Arduino::RadioWrapperComponentImpl comm(FW_OPTIONAL_NAME("COMM"));
-#endif
-Arduino::SerialDriverComponentImpl gpsSerialDriver(FW_OPTIONAL_NAME("SDRV"), 2);
-
-Gps::GpsComponentImpl gps(FW_OPTIONAL_NAME("GPS"));
+Arduino::SerialDriverComponentImpl comm(FW_OPTIONAL_NAME("COMM"), 0);
 
 const char* getHealthName(Fw::ObjBase& comp) {
    #if FW_OBJECT_NAMES == 1
@@ -73,14 +67,9 @@ void constructApp() {
     cmdDisp.init(10,0);
     health.init(25,0);
     groundInterface.init(0);
-    //ledBlinker.init(0);
-#ifdef COMM_SERIAL
     comm.init(0, 115200);
-#else
-    comm.init(0, NODEID_REMOTE, NODEID_GROUND);
-#endif
-    gpsSerialDriver.init(0, 9600);
-    gps.init(0);
+    relay.init(0);
+    radio.init(0, NODEID_GROUND, NODEID_REMOTE);
 
     // Callback to initialize architecture, connect ports, etc.
     constructArduinoArchitecture();
@@ -89,7 +78,6 @@ void constructApp() {
     cmdDisp.regCommands();
     eventLogger.regCommands();
     health.regCommands();
-    gps.regCommands();
 
     // Setup the health an ping entries. These need to be in the same order as the
     // ports connected to the health component. Once the ping entry array is created

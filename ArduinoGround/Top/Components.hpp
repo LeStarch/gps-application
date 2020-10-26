@@ -1,6 +1,7 @@
 #ifndef __ARD_COMPONENTS_HEADER__
 #define __ARD_COMPONENTS_HEADER__
-//#define COMM_SERIAL
+
+#define COMM_SERIAL
 void constructArduinoArchitecture(void);
 void exitTasks(void);
 void constructApp();
@@ -24,8 +25,8 @@ void constructApp();
 #include <Os/Baremetal/TaskRunner/TaskRunner.hpp>
 #ifdef ARDUINO
     #include <ArduinoGpsTracker/RadioWrapper/RadioWrapper.hpp>
+    #include <ArduinoGround/RadioForwarder/RadioForwarderComponentImpl.hpp>
 #endif
-#include <ArduinoGpsTracker/Gps/GpsComponentImpl.hpp>
 
 //Core components. Gotta run them all
 extern Svc::RateGroupDriverImpl rateGroupDriverComp;
@@ -40,14 +41,10 @@ extern Svc::FatalHandlerComponentImpl fatalHandler;
 extern Svc::HealthImpl health;
 extern Svc::ArduinoTimeImpl timeImpl;
 extern Arduino::HardwareRateDriver hardwareRateDriver;
-extern Arduino::SerialDriverComponentImpl gpsSerialDriver;
-extern Gps::GpsComponentImpl gps;
 // Scheduler definition
 extern Os::TaskRunner taskRunner;
 
-#ifdef COMM_SERIAL
-  extern Arduino::SerialDriverComponentImpl comm;
-#else
-  extern Arduino::RadioWrapperComponentImpl comm;
-#endif
+extern Arduino::SerialDriverComponentImpl comm;
+extern Arduino::RadioWrapperComponentImpl radio;
+extern Arduino::RadioForwarderComponentImpl relay;
 #endif

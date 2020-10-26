@@ -11,29 +11,6 @@
 // Global handlers for this Topology
 Fw::LogAssertHook assert;
 
-// Comm serial logger remapping
-#ifdef COMM_SERIAL
-    #define LOG_PORT Serial1
-#else 
-    #define LOG_PORT Serial
-#endif
-
-U32 FreeMem() { // for Teensy 3.0
-    U32 stackTop;
-    U32 heapTop;
-
-    // current position of the stack.
-    stackTop = (U32) &stackTop;
-
-    // current position of heap.
-    void* hTop = malloc(1);
-    heapTop = (U32) hTop;
-    free(hTop);
-
-    // The difference is (approximately) the free, available ram.
-    return stackTop - heapTop;
-}
-
 #define STARTUP_DELAY_MS 2000
 
 /**
@@ -44,10 +21,10 @@ int main(int argc, char* argv[]) {
     assert.registerHook();
 #ifdef ARDUINO
     // Start Serial for logging, and give logger time to connect
-    Serial.begin(115200);
+    Serial.begin(9600);
     delay(STARTUP_DELAY_MS);
     // Setup log handler
-    Os::setArduinoStreamLogHandler(&LOG_PORT);
+    Os::setArduinoStreamLogHandler(&Serial1);
     Fw::Logger::logMsg("[SETUP] Logger registered, hello world!\n", 0, 0, 0, 0, 0, 0);
 #else
     // Set serial port
@@ -60,14 +37,8 @@ int main(int argc, char* argv[]) {
     constructApp();
     Fw::Logger::logMsg("[SETUP] Lanuching rate groups\n", 0, 0, 0, 0, 0, 0);
     // Start the task for the rate group
-    U32 cycle = 0;
     while (1) {
-        U32 mem = FreeMem();
-	if (cycle == 0) {
-	    Fw::Logger::logMsg("[RAM] Free: %lu\n", mem);
-        }
         taskRunner.run();
-	cycle = (cycle + 1) % 100000;
     }
     return 0;
 }

@@ -12,8 +12,7 @@
 
 #define NODEID_GROUND 0
 #define NODEID_REMOTE 1
-#define RADIO_RETRIES 0
-
+#define NETWORK_ID 50
 namespace Arduino {
 
   class RadioWrapperComponentImpl :
@@ -21,7 +20,6 @@ namespace Arduino {
   {
 
     public:
-      const static NATIVE_UINT_TYPE SERIAL_BUFFER_SIZE = 100; //115200 / 10 / 10 + 1;
       // ----------------------------------------------------------------------
       // Construction, initialization, and destruction
       // ----------------------------------------------------------------------
@@ -35,7 +33,9 @@ namespace Arduino {
       //! Initialize object RadioWrapper
       //!
       void init(
-          const NATIVE_INT_TYPE instance /*!< The instance number*/
+          const NATIVE_INT_TYPE instance, /*!< The instance number*/
+          const U8 node, /*!< node ID for radio */
+          const U8 dest  /*!< node ID for destination radio */
       );
 
       //! Destroy object RadioWrapper
@@ -79,6 +79,8 @@ namespace Arduino {
 #endif
       //! Buffer to wrap
       Fw::Buffer m_local_buffer;
+      //! Destination node
+      U8 m_dest;
     };
 
 } // end namespace Arduino

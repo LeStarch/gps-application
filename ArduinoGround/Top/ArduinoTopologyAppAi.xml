@@ -26,7 +26,7 @@
    <import_component_type>fprime-arduino/ArduinoDrv/HardwareRateDriver/HardwareRateDriverComponentAi.xml</import_component_type>
    <import_component_type>fprime-arduino/ArduinoDrv/SerialDriver/SerialDriverComponentAi.xml</import_component_type>
    <import_component_type>ArduinoGpsTracker/RadioWrapper/RadioWrapperComponentAi.xml</import_component_type>
-   <import_component_type>ArduinoGpsTracker/Gps/GpsComponentAi.xml</import_component_type>
+   <import_component_type>ArduinoGround/RadioForwarder/RadioForwarderComponentAi.xml</import_component_type>
 
    <!-- Declare component instances - must match names in Components.hpp -->
    
@@ -51,13 +51,12 @@
    <instance namespace="Arduino" name="hardwareRateDriver" type="HardwareRateDriver" base_id="2000"  base_id_window="20" />
 
    <!--  Choose one of the following -->
-   <!--instance namespace="Arduino" name="comm" type="SerialDriver" base_id="2100"  base_id_window="20" /-->
-   <instance namespace="Arduino" name="comm" type="RadioWrapper" base_id="2100"  base_id_window="20" />
+   <instance namespace="Arduino" name="comm" type="SerialDriver" base_id="2100"  base_id_window="20" />
 
-   <instance namespace="Gps" name="gps" type="Gps" base_id="2200"  base_id_window="20" />
+   <instance namespace="Arduino" name="relay" type="SerialDriver" base_id="2400"  base_id_window="20" />
 
-   <instance namespace="Arduino" name="gpsSerialDriver" type="SerialDriver" base_id="2300"  base_id_window="20" />
-
+   <instance namespace="Arduino" name="radio" type="RadioWrapper" base_id="2500"  base_id_window="20" />
+	
    <!-- Command Registration/Dispatch/Reply Connections -->
    
    <!-- Command Registration Ports - Registration port number must match dispatch port for each component -->
@@ -74,10 +73,6 @@
         <source component = "health" port = "CmdReg" type = "CmdReg" num = "0"/>
         <target component = "cmdDisp" port = "compCmdReg" type = "CmdReg" num = "2"/>
    </connection>
-   <connection name = "GpsReg">
-        <source component = "gps" port = "cmdRegOut" type = "CmdReg" num = "0"/>
-        <target component = "cmdDisp" port = "compCmdReg" type = "CmdReg" num = "3"/>
-   </connection>
 
     <!-- Command Dispatch Ports - Dispatch port number must match registration port for each component -->
 
@@ -93,10 +88,6 @@
         <source component = "cmdDisp" port = "compCmdSend" type = "Cmd" num = "2"/>
         <target component = "health" port = "CmdDisp" type = "Cmd" num = "0"/>
    </connection>
-   <connection name = "GpsReg">
-        <source component = "cmdDisp" port = "compCmdSend" type = "Cmd" num = "3"/>
-        <target component = "gps" port = "cmdIn" type = "Cmd" num = "0"/>
-   </connection>
 
     <!-- Command Reply Ports - Go to the same response port on the dispatcher -->
 
@@ -110,10 +101,6 @@
    </connection>
    <connection name = "HealthReply">
        <source component = "health" port = "CmdStatus" type = "CmdResponse" num = "0"/>
-        <target component = "cmdDisp" port = "compCmdStat" type = "CmdResponse" num = "0"/>
-   </connection>
-   <connection name = "GpsReply">
-       <source component = "gps" port = "cmdResponseOut" type = "CmdResponse" num = "0"/>
         <target component = "cmdDisp" port = "compCmdStat" type = "CmdResponse" num = "0"/>
    </connection>
 
@@ -139,10 +126,6 @@
        <source component = "rateGroup1HzComp" port = "Log" type = "Log" num = "0"/>
         <target component = "eventLogger" port = "LogRecv" type = "Log" num = "0"/>
    </connection>
-   <connection name = "GpsLog">
-       <source component = "gps" port = "eventOut" type = "Log" num = "0"/>
-        <target component = "eventLogger" port = "LogRecv" type = "Log" num = "0"/>
-   </connection>   
 
    <!-- Event Logger Text Connections -->
    
@@ -161,10 +144,6 @@
    </connection>
    <connection name = "healthTlm">
        <source component = "health" port = "Tlm" type = "Tlm" num = "0"/>
-       <target component = "chanTlm" port = "TlmRecv" type = "Tlm" num = "0"/>
-   </connection>
-   <connection name = "GpsTlm">
-       <source component = "gps" port = "tlmOut" type = "Tlm" num = "0"/>
        <target component = "chanTlm" port = "TlmRecv" type = "Tlm" num = "0"/>
    </connection>
  
@@ -187,10 +166,6 @@
    </connection>
    <connection name = "cmdDispTime">
        <source component = "cmdDisp" port = "Time" type = "Time" num = "0"/>
-       <target component = "timeImpl" port = "timeGetPort" type = "Time" num = "0"/>
-   </connection>
-   <connection name = "gpsTime">
-       <source component = "gps" port = "Time" type = "Time" num = "0"/>
        <target component = "timeImpl" port = "timeGetPort" type = "Time" num = "0"/>
    </connection>
 
@@ -217,9 +192,9 @@
        <source component = "rateGroup20HzComp" port = "RateGroupMemberOut" type = "Sched" num = "0"/>
        <target component = "groundInterface" port = "schedIn" type = "Sched" num = "0"/>
    </connection>
-   <connection name = "gpsSerialRg">
+   <connection name = "forwarderRg">
        <source component = "rateGroup20HzComp" port = "RateGroupMemberOut" type = "Sched" num = "1"/>
-       <target component = "gpsSerialDriver" port = "schedIn" type = "Sched" num = "0"/>
+       <target component = "relay" port = "schedIn" type = "Sched" num = "0"/>
    </connection>
 
    <!-- 1Hz Rate Group -->
@@ -235,10 +210,6 @@
        <source component = "rateGroup1HzComp" port = "RateGroupMemberOut" type = "Sched" num = "1"/>
        <target component = "health" port = "Run" type = "Sched" num = "0"/>
    </connection>
-   <connection name = "gpsRg">
-       <source component = "rateGroup1HzComp" port = "RateGroupMemberOut" type = "Sched" num = "2"/>
-       <target component = "gps" port = "schedIn" type = "Sched" num = "0"/>
-   </connection>   
 
    <!-- Health Connections -->
    
@@ -307,26 +278,39 @@
         <target component = "groundInterface" port = "downlinkPort" type = "Com" num = "0"/>
    </connection>
 
-   <connection name = "groundInterWrite">
+   <!--connection name = "groundInterWrite">
        <source component = "groundInterface" port = "write" type = "BufferSend" num = "0"/>
         <target component = "comm" port = "write" type = "BufferSend" num = "0"/>
-   </connection>
+   </connection-->
 
-   <connection name = "groundInterRead">
+   <!--connection name = "groundInterRead">
        <source component = "groundInterface" port = "readPoll" type = "BufferSend" num = "0"/>
         <target component = "comm" port = "readPoll" type = "BufferSend" num = "0"/>
-   </connection>
+   </connection-->
 
    <!-- Serial port connection -->
-   <connection name = "gpsRead">
-       <source component = "gpsSerialDriver" port = "readCallback" type = "BufferSend" num = "0"/>
-       <target component = "gps" port = "readCallback" type = "BufferSend" num = "0"/>
-   </connection>
 
    <!-- Fault Connectionss -->
    <!-- connection name = "eventLoggerFatalOut">
        <source component = "eventLogger" port = "FatalAnnounce" type = "FatalEvent" num = "0"/>
         <target component = "fatalHandler" port = "FatalReceive" type = "FatalEvent" num = "0"/>
    </connection -->
-   
+
+   <!-- Forwarded connection --> 
+   <connection name = "serialRelayWrite">
+       <source component = "relay" port = "serialWrite" type = "BufferSend" num = "0"/>
+       <target component = "comm" port = "write" type = "BufferSend" num = "0"/>
+   </connection>
+   <connection name = "serialRelayPoll">
+       <source component = "relay" port = "serialPoll" type = "BufferSend" num = "0"/>
+       <target component = "comm" port = "readPoll" type = "BufferSend" num = "0"/>
+   </connection>
+   <connection name = "radioRelayWrite">
+       <source component = "relay" port = "radioWrite" type = "BufferSend" num = "0"/>
+       <target component = "radio" port = "write" type = "BufferSend" num = "0"/>
+   </connection>
+   <connection name = "radioRelayPoll">
+       <source component = "relay" port = "radioPoll" type = "BufferSend" num = "0"/>
+       <target component = "radio" port = "readPoll" type = "BufferSend" num = "0"/>
+   </connection>
 </assembly>

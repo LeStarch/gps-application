@@ -20,11 +20,11 @@ namespace Arduino {
     ) :
       RadioWrapperComponentBase(compName),
 #ifdef ARDUINO
-      m_radio(15, RF69_IRQ_PIN, true),
-      m_local_buffer(0xfeedfeed, 0xdeeddeed, reinterpret_cast<POINTER_CAST>(m_radio.DATA), RF69_MAX_DATA_LEN)
+      m_local_buffer(0xfeedfeed, 0xdeeddeed, reinterpret_cast<POINTER_CAST>(m_radio.DATA), RF69_MAX_DATA_LEN),
 #else
-       m_local_buffer(0xfeedfeed, 0xdeeddeed, reinterpret_cast<POINTER_CAST>(m_data), sizeof(m_data))
+      m_local_buffer(0xfeedfeed, 0xdeeddeed, reinterpret_cast<POINTER_CAST>(m_data), sizeof(m_data)),
 #endif
+      m_dest(0)
   {
 
   }
@@ -63,7 +63,11 @@ namespace Arduino {
         NATIVE_UINT_TYPE context /*!< The call order*/
     )
   {
-      m_local_buffer.setsize(SERIAL_BUFFER_SIZE);
+#ifdef ARDUINO
+      m_local_buffer.setsize(RF69_MAX_DATA_LEN);
+#else
+      m_local_buffer.setsize(sizeof(m_data));
+#endif
       read_data(m_local_buffer);
       if (m_local_buffer.getsize() > 0) {
           readCallback_out(0, m_local_buffer);

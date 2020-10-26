@@ -163,7 +163,6 @@
 #define FW_FILEID_ASSERT                    2   //!< File ID used - requires -DASSERT_FILE_ID=<somevalue> to be set on the compile command line
 #define FW_FILENAME_ASSERT                  3   //!< Uses the file name in the assert - image stores filenames
 
-#define FW_ASSERT_LEVEL FW_FILEID_ASSERT
 #ifndef FW_ASSERT_LEVEL
 #define FW_ASSERT_LEVEL                     FW_FILENAME_ASSERT //!< Defines the type of assert used
 #endif
@@ -192,7 +191,7 @@
 #if FW_OBJECT_REGISTRATION
 // For the simple object registry provided with the framework, this specifies how many objects the registry will store.
  #ifndef FW_OBJ_SIMPLE_REG_ENTRIES
- #define FW_OBJ_SIMPLE_REG_ENTRIES           100  //!< Number of objects stored in simple object registry
+ #define FW_OBJ_SIMPLE_REG_ENTRIES           500  //!< Number of objects stored in simple object registry
  #endif
 // When dumping the contents of the registry, this specifies the size of the buffer used to store object names. Should be >= FW_OBJ_NAME_MAX_SIZE.
  #ifndef FW_OBJ_SIMPLE_REG_BUFF_SIZE

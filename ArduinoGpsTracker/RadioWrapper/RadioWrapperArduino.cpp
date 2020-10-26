@@ -8,18 +8,21 @@
 #include <ArduinoGpsTracker/RadioWrapper/RadioWrapper.hpp>
 #include "Fw/Types/BasicTypes.hpp"
 #include <Arduino.h>
-#include <Os/Log.hpp>
 
 namespace Arduino {
 
   void RadioWrapperComponentImpl ::
     init(
-        const NATIVE_INT_TYPE instance
+        const NATIVE_INT_TYPE instance,
+        const U8 node,
+        const U8 dest
     )
   {
       RadioWrapperComponentBase::init(instance);
-      m_radio.initialize(RF69_433MHZ, NODEID_REMOTE);
-      //m_radio.setHighPower();
+      m_radio.setCS(15);
+      bool success = m_radio.initialize(RF69_915MHZ, node, NETWORK_ID);
+      m_radio.setHighPower();
+      m_dest = dest;
   }
 
 
@@ -32,14 +35,19 @@ namespace Arduino {
         Fw::Buffer &fwBuffer
     )
   {
-	  m_radio.sendWithRetry(NODEID_GROUND, reinterpret_cast<U8*>(fwBuffer.getdata()), fwBuffer.getsize(), 0);
+      m_radio.send(m_dest, reinterpret_cast<U8*>(fwBuffer.getdata()), fwBuffer.getsize());
   }
 
   void RadioWrapperComponentImpl ::
     read_data(Fw::Buffer& fwBuffer)
   {
-	  if (m_radio.receiveDone()) {
-	  }
-      fwBuffer.setsize(m_radio.DATALEN);
+      U32 i = 0;
+      fwBuffer.setsize(0);
+      if (m_radio.receiveDone()) {
+          for (i = 0; i < m_radio.DATALEN; i++) {
+              reinterpret_cast<U8*>(fwBuffer.getdata())[i] = m_radio.DATA[i];  
+          }
+          fwBuffer.setsize(m_radio.DATALEN);
+      }
   }
 } // end namespace Svc
